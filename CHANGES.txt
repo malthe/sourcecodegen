@@ -4,8 +4,9 @@ Changelog
 HEAD
 ~~~~
 
- - Assignments are statements and should terminate. [malthe]
+ - Fixed issue where statements would not be cleared properly. [malthe]
 
+ - Assignments are statements and should terminate. [malthe]
 
 0.1 (released 26/11/2008)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

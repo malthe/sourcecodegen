@@ -23,8 +23,9 @@ class CodeStream(object):
         self.clear = True
         
     def write(self, text):
-        self.out(text)
-        self.stream.write('\n')
+        if text or self.clear == False:
+            self.out(text)
+            self.stream.write('\n')
         self.clear = True
     
     def out(self, text):

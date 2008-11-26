@@ -34,8 +34,7 @@ class ASTVisitor(object):
     def visitStmt(self, node, stream):
         for node in node.nodes:
             self.visit(node, stream)            
-            if stream.clear == False:
-                stream.write('\n')
+            stream.write("")
             
     def visitIf(self, node, stream):
         for index, test in enumerate(node.tests):
@@ -122,6 +121,7 @@ class ASTVisitor(object):
         stream.indentation += 1
         for statement in node.code:
             self.visit(statement, stream)
+            stream.write("")
         stream.indentation -= 1
 
     def visitConst(self, node, stream):
