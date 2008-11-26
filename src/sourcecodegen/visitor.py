@@ -138,7 +138,8 @@ class ASTVisitor(object):
         for arg in tuple(node.args)[:-1]:
             self.visit(arg, stream)
             stream.out(", ")
-        self.visit(tuple(node.args)[-1], stream)
+        if node.args:
+            self.visit(node.args[-1], stream)
         if node.star_args:
             if node.args:
                 stream.out(", *")
