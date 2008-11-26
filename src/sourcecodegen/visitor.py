@@ -79,7 +79,8 @@ class ASTVisitor(object):
                 stream.out(", ")
         stream.out(" = ")
         self.visit(node.expr, stream)
-
+        stream.write("")
+        
     def visitAssName(self, node, stream):
         if node.flags == 'OP_DELETE':
             stream.out("del ")

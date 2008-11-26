@@ -1,7 +1,13 @@
 Changelog
 =========
 
+HEAD
+~~~~
+
+ - Assignments are statements and should terminate. [malthe]
+
+
 0.1 (released 26/11/2008)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Initial release.
+ - Initial release.
