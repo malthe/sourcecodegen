@@ -4,6 +4,9 @@ Changelog
 HEAD
 ~~~~
 
+ - Fixed issue where default arguments would be written incorrectly if
+   no non-keyword arguments were present. [malthe]
+
  - Fixed issue where statements would not be cleared properly. [malthe]
 
  - Assignments are statements and should terminate. [malthe]

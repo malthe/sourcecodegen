@@ -76,6 +76,9 @@ class TestSourceCodeGeneration(unittest.TestCase):
         def foo(bar, *args, **kwargs):
             pass
 
+        def foo(foo=None):
+            pass
+
         def foo(bar, foo=None, *args, **kwargs):
             pass
 

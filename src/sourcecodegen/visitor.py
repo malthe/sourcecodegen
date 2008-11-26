@@ -102,7 +102,10 @@ class ASTVisitor(object):
                 stream.out(format_argnames(argnames[:-len(node.defaults)]))
                 for index, default in enumerate(node.defaults):
                     name = argnames[index-len(node.defaults)]
-                    stream.out(", %s=" % name)
+                    if len(argnames) > len(node.defaults) or index > 0:
+                        stream.out(", %s=" % name)
+                    else:
+                        stream.out("%s=" % name)
                     self.visit(default, stream)
             else:
                 stream.out(format_argnames(argnames))
