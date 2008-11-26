@@ -443,6 +443,10 @@ class ASTVisitor(object):
             if index < len(node.items) - 1:
                 stream.out(", ")            
         stream.out('}')
+
+    def visitNot(self, node, stream):
+        stream.out("not ")
+        self.visit(node.expr, stream)
         
     visitAdd = binary('+')
     visitSub = binary('-')

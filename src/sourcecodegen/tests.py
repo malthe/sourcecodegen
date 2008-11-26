@@ -256,4 +256,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
         foo != bar
         foo >= bar
         foo <= bar
-        
+
+    @verify
+    def testNot(self):
+        not foo

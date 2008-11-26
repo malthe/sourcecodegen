@@ -4,6 +4,8 @@ Changelog
 HEAD
 ~~~~
 
+ - Added support for `not` operator. [malthe]
+
  - Fixed issue where default arguments would be written incorrectly if
    no non-keyword arguments were present. [malthe]
 
