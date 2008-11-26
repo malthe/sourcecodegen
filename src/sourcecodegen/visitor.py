@@ -123,8 +123,9 @@ class ASTVisitor(object):
         stream.write("):")
         stream.indentation += 1
         for statement in node.code:
-            self.visit(statement, stream)
-            stream.write("")
+            if statement is not None:
+                self.visit(statement, stream)
+                stream.write("")
         stream.indentation -= 1
 
     def visitConst(self, node, stream):
