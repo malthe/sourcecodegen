@@ -261,3 +261,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
     @verify
     def testNot(self):
         not foo
+
+    @verify
+    def testFormatString(self):
+        foo % (bar, moo)

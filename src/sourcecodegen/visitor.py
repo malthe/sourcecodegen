@@ -173,10 +173,14 @@ class ASTVisitor(object):
                 stream.out(", ")
 
     def visitTuple(self, node, stream):
+        stream.out("(")
         for index, item in enumerate(tuple(node)):
             self.visit(item, stream)
             if index < len(tuple(node)) - 1:
                 stream.out(", ")
+        if len(node.nodes) == 1:
+            stream.out(", ")
+        stream.out(")")
 
     def visitGenExpr(self, node, stream):
         stream.out("(")
