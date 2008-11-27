@@ -274,7 +274,9 @@ class TestSourceCodeGeneration(unittest.TestCase):
     @verify
     def testFormatString(self):
         foo % (bar, moo)
-
+        foo % (bar or foo)
+        foo % (bar and foo)
+        
     @verify
     def testLoop(self):
         for foo in bar:
@@ -283,4 +285,3 @@ class TestSourceCodeGeneration(unittest.TestCase):
             pass
         for foo, (bar, moo) in boo:
             pass
-        

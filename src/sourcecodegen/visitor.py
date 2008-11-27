@@ -15,9 +15,11 @@ def format_ass(node):
 
 def binary(symbol):
     def visit(self, node, stream):
+        stream.out('(')
         self.visit(node.left, stream)
         stream.out(' %s ' % symbol)
         self.visit(node.right, stream)
+        stream.out(')')
     return visit
 
 class ASTVisitor(object):
@@ -66,40 +68,50 @@ class ASTVisitor(object):
             stream.indentation -= 1
 
     def visitAnd(self, node, stream):
+        stream.out('(')
         for condition in tuple(node)[:-1]:
             self.visit(condition, stream)
             stream.out(" and ")
         self.visit(tuple(node)[-1], stream)
+        stream.out(')')
 
     def visitOr(self, node, stream):
+        stream.out('(')
         for condition in tuple(node)[:-1]:
             self.visit(condition, stream)
             stream.out(" or ")
         self.visit(tuple(node)[-1], stream)
-
+        stream.out(')')
+        
     def visitInvert(self, node, stream):
         stream.out('~(')
         self.visit(node.expr, stream)
         stream.out(')')
 
     def visitBitand(self, node, stream):
+        stream.out('(')
         for condition in tuple(node)[:-1]:
             self.visit(condition, stream)
             stream.out(" & ")
         self.visit(tuple(node)[-1], stream)
-
+        stream.out(')')
+        
     def visitBitor(self, node, stream):
+        stream.out('(')
         for condition in tuple(node)[:-1]:
             self.visit(condition, stream)
             stream.out(" | ")
         self.visit(tuple(node)[-1], stream)
-
+        stream.out(')')
+        
     def visitBitxor(self, node, stream):
+        stream.out('(')
         for condition in tuple(node)[:-1]:
             self.visit(condition, stream)
             stream.out(" ^ ")
         self.visit(tuple(node)[-1], stream)
-
+        stream.out(')')
+        
     def visitName(self, node, stream):
         stream.out(node.name)
 
