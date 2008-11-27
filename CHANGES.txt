@@ -4,6 +4,9 @@ Changelog
 HEAD
 ~~~~
 
+0.3 (released 27/11/2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
  - Added logical operators. [malthe]
 
  - Fixed tuple unpacking issues. [malthe]
