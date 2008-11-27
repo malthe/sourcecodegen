@@ -40,6 +40,8 @@ class ASTVisitor(object):
 
     def visitStmt(self, node, stream):
         for node in node.nodes:
+            if node is None:
+                continue
             self.visit(node, stream)            
             stream.write("")
             
