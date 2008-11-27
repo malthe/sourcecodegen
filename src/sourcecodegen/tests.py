@@ -48,6 +48,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
         foo = bar = moo
         foo, bar = bar
         foo, bar = foo, bar
+        foo, (bar, moo) = foo
+        ((foo, bar), foo) = moo
 
     @verify
     def testArithmeticAssignment(self):
@@ -265,3 +267,13 @@ class TestSourceCodeGeneration(unittest.TestCase):
     @verify
     def testFormatString(self):
         foo % (bar, moo)
+
+    @verify
+    def testLoop(self):
+        for foo in bar:
+            pass
+        else:
+            pass
+        for foo, (bar, moo) in boo:
+            pass
+        

@@ -8,6 +8,11 @@ def format_argnames(argnames):
         isinstance(name, tuple) and "(%s)" % format_argnames(name) or name \
         for name in argnames)
 
+def format_ass(node):
+    if isinstance(node, ast.AssTuple):
+        return "(%s)" % ", ".join(format_ass(ass) for ass in node)
+    return node.name
+
 def binary(symbol):
     def visit(self, node, stream):
         self.visit(node.left, stream)
@@ -162,15 +167,12 @@ class ASTVisitor(object):
         self.visit(node.expr, stream)
 
     def visitAssTuple(self, node, stream):
-        for index, ass in enumerate(tuple(node)):
-            if index == 0 and ass.flags == 'OP_DELETE':
-                stream.out("del ")
-            if isinstance(ass, ast.AssName):
-                stream.out(ass.name)
-            else:
-                self.visit(ass, stream)
-            if index < len(tuple(node)) - 1:
-                stream.out(", ")
+        first = node
+        while isinstance(first, ast.AssTuple):
+            first = first.nodes[0]
+        if first.flags == 'OP_DELETE':
+            stream.out("del ")
+        stream.out(format_ass(node))
 
     def visitTuple(self, node, stream):
         stream.out("(")
@@ -457,6 +459,20 @@ class ASTVisitor(object):
     def visitNot(self, node, stream):
         stream.out("not ")
         self.visit(node.expr, stream)
+
+    def visitFor(self, node, stream):
+        stream.out("for %s in " % format_ass(node.assign))
+        self.visit(node.list, stream)
+        stream.write(":")
+        stream.indentation += 1
+        self.visit(node.body, stream)
+        stream.indentation -= 1
+        if node.else_ is not None:
+            stream.write("else:")
+            stream.indentation += 1
+            self.visit(node.else_, stream)
+            stream.indentation -= 1
+            
         
     visitAdd = binary('+')
     visitSub = binary('-')
