@@ -4,6 +4,8 @@ Changelog
 HEAD
 ~~~~
 
+ - Fixed issue with multiple assignments. [malthe]
+
  - Added support for `not` operator. [malthe]
 
  - Fixed issue where default arguments would be written incorrectly if

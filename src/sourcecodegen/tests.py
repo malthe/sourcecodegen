@@ -45,6 +45,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
     @verify
     def testAssignment(self):
         foo = bar
+        foo = bar = moo
         foo, bar = bar
         foo, bar = foo, bar
 

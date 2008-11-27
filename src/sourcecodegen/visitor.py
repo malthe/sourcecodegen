@@ -1,3 +1,5 @@
+from compiler import ast
+
 def triple_quote(doc):
     return '"""%s"""' % doc.replace('"""', '\"\"\"')
 
@@ -75,7 +77,7 @@ class ASTVisitor(object):
         for index, ass in enumerate(tuple(node.nodes)):
             self.visit(ass, stream)
             if index < len(tuple(node.nodes)) - 1:
-                stream.out(", ")
+                stream.out(" = ")
         stream.out(" = ")
         self.visit(node.expr, stream)
         stream.write("")
@@ -163,7 +165,10 @@ class ASTVisitor(object):
         for index, ass in enumerate(tuple(node)):
             if index == 0 and ass.flags == 'OP_DELETE':
                 stream.out("del ")
-            stream.out(ass.name)
+            if isinstance(ass, ast.AssName):
+                stream.out(ass.name)
+            else:
+                self.visit(ass, stream)
             if index < len(tuple(node)) - 1:
                 stream.out(", ")
 
