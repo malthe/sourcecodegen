@@ -4,9 +4,11 @@ Changelog
 HEAD
 ~~~~
 
-- Fixed tuple unpacking issues. [malthe]
+ - Added logical operators. [malthe]
 
-- Added for-loop. [malthe]
+ - Fixed tuple unpacking issues. [malthe]
+
+ - Added for-loop. [malthe]
 
 0.2 (released 27/11/2008)
 ~~~~~~~~~~~~~~~~~~~~~~~~~

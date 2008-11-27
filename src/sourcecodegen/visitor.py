@@ -69,6 +69,34 @@ class ASTVisitor(object):
             stream.out(" and ")
         self.visit(tuple(node)[-1], stream)
 
+    def visitOr(self, node, stream):
+        for condition in tuple(node)[:-1]:
+            self.visit(condition, stream)
+            stream.out(" or ")
+        self.visit(tuple(node)[-1], stream)
+
+    def visitInvert(self, node, stream):
+        stream.out('~')
+        self.visit(node.expr, stream)
+
+    def visitBitand(self, node, stream):
+        for condition in tuple(node)[:-1]:
+            self.visit(condition, stream)
+            stream.out(" & ")
+        self.visit(tuple(node)[-1], stream)
+
+    def visitBitor(self, node, stream):
+        for condition in tuple(node)[:-1]:
+            self.visit(condition, stream)
+            stream.out(" | ")
+        self.visit(tuple(node)[-1], stream)
+
+    def visitBitxor(self, node, stream):
+        for condition in tuple(node)[:-1]:
+            self.visit(condition, stream)
+            stream.out(" ^ ")
+        self.visit(tuple(node)[-1], stream)
+
     def visitName(self, node, stream):
         stream.out(node.name)
 
@@ -472,8 +500,7 @@ class ASTVisitor(object):
             stream.indentation += 1
             self.visit(node.else_, stream)
             stream.indentation -= 1
-            
-        
+
     visitAdd = binary('+')
     visitSub = binary('-')
     visitMul = binary('*')

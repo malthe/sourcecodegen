@@ -252,7 +252,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
         {'a': a, 'b': b, 'c': c}
 
     @verify
-    def testOperators(self):
+    def testComparisons(self):
         foo < bar
         foo > bar
         foo == bar
@@ -261,8 +261,14 @@ class TestSourceCodeGeneration(unittest.TestCase):
         foo <= bar
 
     @verify
-    def testNot(self):
+    def testLogicalOperators(self):
+        foo | bar & bar ^ foo
+        ~ bar
+        
+    @verify
+    def testOperators(self):
         not foo
+        bar or foo
 
     @verify
     def testFormatString(self):
