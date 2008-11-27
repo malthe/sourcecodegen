@@ -264,12 +264,13 @@ class TestSourceCodeGeneration(unittest.TestCase):
     def testLogicalOperators(self):
         foo | bar & bar ^ foo
         ~ bar
-        
+        ~ (foo or bar)
     @verify
     def testOperators(self):
         not foo
         bar or foo
-
+        not (foo or bar)
+        
     @verify
     def testFormatString(self):
         foo % (bar, moo)

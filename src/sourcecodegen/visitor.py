@@ -76,8 +76,9 @@ class ASTVisitor(object):
         self.visit(tuple(node)[-1], stream)
 
     def visitInvert(self, node, stream):
-        stream.out('~')
+        stream.out('~(')
         self.visit(node.expr, stream)
+        stream.out(')')
 
     def visitBitand(self, node, stream):
         for condition in tuple(node)[:-1]:
@@ -485,8 +486,9 @@ class ASTVisitor(object):
         stream.out('}')
 
     def visitNot(self, node, stream):
-        stream.out("not ")
+        stream.out("not (")
         self.visit(node.expr, stream)
+        stream.out(")")
 
     def visitFor(self, node, stream):
         stream.out("for %s in " % format_ass(node.assign))
