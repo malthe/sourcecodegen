@@ -4,6 +4,9 @@ Changelog
 HEAD
 ~~~~
 
+0.4 (released 28/11/2008)
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
  - Make sure all binary operators get parentheses around them; we may
    be able to improve upon this in the future (for
    legibility-reasons). [malthe]
