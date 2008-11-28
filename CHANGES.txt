@@ -3,6 +3,8 @@ Changelog
 
 HEAD
 
+0.5 (released 28/11/2008)
+
  - Added `yield` and unary operators. [malthe]
 
 0.4 (released 28/11/2008)
