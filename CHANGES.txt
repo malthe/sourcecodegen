@@ -2,19 +2,16 @@ Changelog
 =========
 
 HEAD
-~~~~
 
  - Added `yield` and unary operators. [malthe]
 
 0.4 (released 28/11/2008)
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
  - Make sure all binary operators get parentheses around them; we may
    be able to improve upon this in the future (for
    legibility-reasons). [malthe]
 
 0.3 (released 27/11/2008)
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
  - Added logical operators. [malthe]
 
@@ -23,7 +20,6 @@ HEAD
  - Added for-loop. [malthe]
 
 0.2 (released 27/11/2008)
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
  - Fixed issue with tuples and parentheses. [malthe]
 
@@ -39,6 +35,5 @@ HEAD
  - Assignments are statements and should terminate. [malthe]
 
 0.1 (released 26/11/2008)
-~~~~~~~~~~~~~~~~~~~~~~~~~
 
  - Initial release.
