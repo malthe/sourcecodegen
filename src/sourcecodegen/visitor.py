@@ -517,6 +517,19 @@ class ASTVisitor(object):
             self.visit(node.else_, stream)
             stream.indentation -= 1
 
+    def visitYield(self, node, stream):
+        stream.out("yield ")
+        self.visit(node.value, stream)
+        stream.write("")
+
+    def visitUnaryAdd(self, node, stream):
+        stream.out("+")
+        self.visit(node.expr, stream)
+
+    def visitUnarySub(self, node, stream):
+        stream.out("-")
+        self.visit(node.expr, stream)
+
     visitAdd = binary('+')
     visitSub = binary('-')
     visitMul = binary('*')

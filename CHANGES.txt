@@ -4,6 +4,8 @@ Changelog
 HEAD
 ~~~~
 
+ - Added `yield` and unary operators. [malthe]
+
 0.4 (released 28/11/2008)
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

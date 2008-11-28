@@ -285,3 +285,13 @@ class TestSourceCodeGeneration(unittest.TestCase):
             pass
         for foo, (bar, moo) in boo:
             pass
+
+    @verify
+    def testYield(self):
+        yield foo
+
+    @verify
+    def testUnary(self):
+        +foo
+        -bar
+        
