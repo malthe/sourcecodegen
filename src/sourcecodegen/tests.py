@@ -295,3 +295,10 @@ class TestSourceCodeGeneration(unittest.TestCase):
         +foo
         -bar
         
+    @verify
+    def testAffinity(self):
+        a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
+        a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
+        a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
+        a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
+        a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b
