@@ -1,7 +1,7 @@
 Changelog
 =========
 
-In next release
+0.6.1 (released 13/12/2008)
 
  - Fixed issue where generators would not be prioritized in certain
    cases. [malthe]
