@@ -299,7 +299,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
     def testOperatorPrecenceRules(self):
         a + b / c % d * e - b / c + a
         a & c | d ^ e
-        
+        not abc()
+
     @verify
     def testOptimalOperatorPredence(self):
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
@@ -308,4 +309,3 @@ class TestSourceCodeGeneration(unittest.TestCase):
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b
 
-        

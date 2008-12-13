@@ -131,7 +131,12 @@ class ASTVisitor(object):
             raise NotImplementedError(
                 "Unable to visit `%s`." % repr(node))
 
-        return func(node)
+        gen = func(node)
+
+        if isinstance(gen, prioritized):
+            return gen
+
+        return prioritized(gen, 0)        
 
     def visitModule(self, node):
         if node.doc is not None:

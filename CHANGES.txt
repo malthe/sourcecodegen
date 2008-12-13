@@ -1,6 +1,11 @@
 Changelog
 =========
 
+In next release
+
+ - Fixed issue where generators would not be prioritized in certain
+   cases. [malthe]
+
 0.6 (released 13/12/2008)
 
  - Operator precedence is now taken into account such that we can
