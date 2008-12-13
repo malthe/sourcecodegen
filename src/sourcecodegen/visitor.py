@@ -1,4 +1,7 @@
 from compiler import ast
+from itertools import chain
+
+from cStringIO import StringIO
 
 def triple_quote(doc):
     return '"""%s"""' % doc.replace('"""', '\"\"\"')
@@ -13,133 +16,187 @@ def format_ass(node):
         return "(%s)" % ", ".join(format_ass(ass) for ass in node)
     return node.name
 
-def binary(symbol):
-    def visit(self, node, stream):
-        stream.out('(')
-        self.visit(node.left, stream)
-        stream.out(' %s ' % symbol)
-        self.visit(node.right, stream)
-        stream.out(')')
+class prioritized(object):
+    def __init__(self, generator, priority):
+        self.generator = generator
+        self.priority = priority
+
+    def __iter__(self):
+        return self.generator
+
+def prioritize(priority):
+    def decorator(func):
+        def visit(self, node):
+            return prioritized(func(self, node), priority)
+        return visit
+    return decorator
+
+def unary(symbol, priority):
+    @prioritize(prioritize)
+    def visit(self, node):
+        yield symbol
+        child = self.visit(node.expr)
+        if child.priority < priority:
+            yield '('
+            yield child
+            yield ')'
+        else:
+            yield child
     return visit
 
+def binary(symbol, priority):
+    @prioritize(prioritize)
+    def visit(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        if left.priority < priority and right.priority < priority:
+            yield '('
+            yield left
+            yield ' %s ' % symbol
+            yield right
+            yield ')'
+        else:
+            yield left
+            yield ' %s ' % symbol
+            yield right
+            
+    return visit
+
+def n_ary(symbol, priority):
+    @prioritize(prioritize)
+    def visit(self, node):
+        yield '('
+        for condition in tuple(node)[:-1]:
+            yield self.visit(condition)
+            yield ' %s ' % symbol
+        yield self.visit(tuple(node)[-1])
+        yield ')'
+    return visit
+
+class CodeStream(object):
+    def __init__(self, indentation_string="\t"):
+        self.indentation_string = indentation_string
+        self.indentation = 0
+        self.stream = StringIO()
+        self.clear = True
+
+    def __call__(self, value):
+        if value is None:
+            return self.write(None)
+
+        if isinstance(value, basestring):
+            return self.out(value)
+
+        if isinstance(value, tuple) and self.clear is False:
+            self.clear = True
+            self.indentation += 1
+            self(value)
+            self.indentation -= 1
+        else:
+            for part in value:
+                self(part)
+                    
+    def write(self, text=None):
+        if text or self.clear == False:
+            self.out(text)
+            self.stream.write('\n')
+        self.clear = True
+    
+    def out(self, text):
+        if self.clear is True:
+            indentation = self.indentation_string * self.indentation
+            self.stream.write(indentation)
+            self.clear = False
+        self.stream.write(text or "")
+
+    def getvalue(self):
+        return self.stream.getvalue()
+    
 class ASTVisitor(object):
-    def visit(self, node, stream):
+    def __init__(self, tree):
+        self.tree = tree
+
+    def __call__(self):
+        stream = CodeStream()
+        stream(self.visit(self.tree))            
+        return stream.getvalue()
+        
+    def visit(self, node):
         name = node.__class__.__name__
+            
         try:
             func = getattr(self, 'visit%s' % name)
         except AttributeError:
             raise NotImplementedError(
                 "Unable to visit `%s`." % repr(node))
 
-        func(node, stream)
+        return func(node)
 
-    def visitModule(self, node, stream):
+    def visitModule(self, node):
         if node.doc is not None:
-            stream.write(triple_quote(node.doc))
+            yield triple_quote(node.doc)
 
-        for node in node.getChildNodes():
-            self.visit(node, stream)
+        for node in self.visit(node.node):
+            yield node
 
-    def visitStmt(self, node, stream):
-        for node in node.nodes:
-            if node is None:
+    def visitStmt(self, node):
+        for child in node.nodes:
+            if child is None:
                 continue
-            self.visit(node, stream)            
-            stream.write("")
+
+            yield (self.visit(child),)
+            yield None
             
-    def visitIf(self, node, stream):
+    def visitIf(self, node):
         for index, test in enumerate(node.tests):
             if index == 0:
-                stream.out("if ")
+                yield "if "
             else:
-                stream.out("elif ")
+                yield "elif "
 
             condition, statement = test
-            self.visit(condition, stream)
-            stream.write(":")
-            stream.indentation += 1
-            self.visit(statement, stream)
-            stream.indentation -= 1
 
+            yield self.visit(condition)
+            yield ":"
+            yield self.visit(statement),
+            
         if node.else_:
-            stream.write("else:")
-            stream.indentation += 1
-            self.visit(node.else_, stream)
-            stream.indentation -= 1
+            yield "else:"
+            yield self.visit(node.else_),
 
-    def visitAnd(self, node, stream):
-        stream.out('(')
-        for condition in tuple(node)[:-1]:
-            self.visit(condition, stream)
-            stream.out(" and ")
-        self.visit(tuple(node)[-1], stream)
-        stream.out(')')
+    @prioritize(-3)
+    def visitName(self, node):
+        yield node.name
 
-    def visitOr(self, node, stream):
-        stream.out('(')
-        for condition in tuple(node)[:-1]:
-            self.visit(condition, stream)
-            stream.out(" or ")
-        self.visit(tuple(node)[-1], stream)
-        stream.out(')')
-        
-    def visitInvert(self, node, stream):
-        stream.out('~(')
-        self.visit(node.expr, stream)
-        stream.out(')')
+    def visitPass(self, node):
+        yield "pass"
+        yield None
 
-    def visitBitand(self, node, stream):
-        stream.out('(')
-        for condition in tuple(node)[:-1]:
-            self.visit(condition, stream)
-            stream.out(" & ")
-        self.visit(tuple(node)[-1], stream)
-        stream.out(')')
-        
-    def visitBitor(self, node, stream):
-        stream.out('(')
-        for condition in tuple(node)[:-1]:
-            self.visit(condition, stream)
-            stream.out(" | ")
-        self.visit(tuple(node)[-1], stream)
-        stream.out(')')
-        
-    def visitBitxor(self, node, stream):
-        stream.out('(')
-        for condition in tuple(node)[:-1]:
-            self.visit(condition, stream)
-            stream.out(" ^ ")
-        self.visit(tuple(node)[-1], stream)
-        stream.out(')')
-        
-    def visitName(self, node, stream):
-        stream.out(node.name)
+    def visitDiscard(self, node):
+        yield self.visit(node.expr)
+        yield None
 
-    def visitPass(self, node, stream):
-        stream.write("pass")
-
-    def visitDiscard(self, node, stream):
-        self.visit(node.expr, stream)
-
-    def visitAssign(self, node, stream):
+    def visitAssign(self, node):
         for index, ass in enumerate(tuple(node.nodes)):
-            self.visit(ass, stream)
+            yield self.visit(ass)
+                
             if index < len(tuple(node.nodes)) - 1:
-                stream.out(" = ")
-        stream.out(" = ")
-        self.visit(node.expr, stream)
-        stream.write("")
+                yield " = "
+        yield " = "
+        yield self.visit(node.expr)
+        yield None
         
-    def visitAssName(self, node, stream):
+    def visitAssName(self, node):
         if node.flags == 'OP_DELETE':
-            stream.out("del ")
-        stream.out(node.name)
+            yield "del "
+        yield node.name
 
-    def visitFunction(self, node, stream):
+    def visitFunction(self, node):
         if node.decorators:
-            self.visit(node.decorators, stream)            
+            yield self.visit(node.decorators)
 
-        stream.out("def %s(" % node.name)
+        yield "def %s(" % node.name
 
         argnames = list(node.argnames)
         if argnames:
@@ -149,392 +206,375 @@ class ASTVisitor(object):
                 varargs = argnames.pop()
 
             if node.defaults:
-                stream.out(format_argnames(argnames[:-len(node.defaults)]))
+                yield format_argnames(argnames[:-len(node.defaults)])
                 for index, default in enumerate(node.defaults):
                     name = argnames[index-len(node.defaults)]
                     if len(argnames) > len(node.defaults) or index > 0:
-                        stream.out(", %s=" % name)
+                        yield ", %s=" % name
                     else:
-                        stream.out("%s=" % name)
-                    self.visit(default, stream)
+                        yield "%s=" % name
+                    yield self.visit(default)
             else:
-                stream.out(format_argnames(argnames))
+                yield format_argnames(argnames)
                             
         if node.varargs:
             if node.argnames:
-                stream.out(", ")
-            stream.out("*%s" % varargs)
+                yield ", "
+            yield "*%s" % varargs
 
         if node.kwargs:
             if node.argnames:
-                stream.out(", ")
-            stream.out("**%s" % kwargs)
+                yield ", "
+            yield "**%s" % kwargs
 
-        stream.write("):")
-        stream.indentation += 1
-        for statement in node.code:
-            if statement is not None:
-                self.visit(statement, stream)
-                stream.write("")
-        stream.indentation -= 1
+        yield "):"
+        yield self.visit(node.code),
 
-    def visitConst(self, node, stream):
-        stream.out(repr(node.value))
+    @prioritize(0)
+    def visitConst(self, node):
+        yield repr(node.value)
 
-    def visitDecorators(self, node, stream):
+    def visitDecorators(self, node):
         for decorator in tuple(node):
-            stream.out('@')
-            self.visit(decorator, stream)
-            stream.write("")
+            yield '@'
+            yield self.visit(decorator)
+            yield None
 
-    def visitCallFunc(self, node, stream):
-        self.visit(node.node, stream)
-        stream.out("(")
+    def visitCallFunc(self, node):
+        yield self.visit(node.node)
+        yield '('
         for arg in tuple(node.args)[:-1]:
-            self.visit(arg, stream)
-            stream.out(", ")
+            yield self.visit(arg)
+            yield ", "
         if node.args:
-            self.visit(node.args[-1], stream)
+            yield self.visit(node.args[-1])
         if node.star_args:
             if node.args:
-                stream.out(", *")
-            self.visit(node.star_args, stream)
+                yield ", *"
+            yield self.visit(node.star_args)
         if node.dstar_args:
             if node.args:
-                stream.out(", **")
-            self.visit(node.dstar_args, stream)
-        stream.out(")")
+                yield ", **"
+            yield self.visit(node.dstar_args)
+        yield ")"
 
-    def visitKeyword(self, node, stream):
-        stream.out("%s=" % node.name)
-        self.visit(node.expr, stream)
+    def visitKeyword(self, node):
+        yield "%s=" % node.name
+        yield self.visit(node.expr)
 
-    def visitAssTuple(self, node, stream):
+    def visitAssTuple(self, node):
         first = node
         while isinstance(first, ast.AssTuple):
             first = first.nodes[0]
         if first.flags == 'OP_DELETE':
-            stream.out("del ")
-        stream.out(format_ass(node))
+            yield "del "
+        yield format_ass(node)
 
-    def visitTuple(self, node, stream):
-        stream.out("(")
+    @prioritize(0)
+    def visitTuple(self, node):
+        yield "("
         for index, item in enumerate(tuple(node)):
-            self.visit(item, stream)
+            yield self.visit(item)
             if index < len(tuple(node)) - 1:
-                stream.out(", ")
+                yield ", "
         if len(node.nodes) == 1:
-            stream.out(", ")
-        stream.out(")")
+            yield ", "
+        yield ")"
 
-    def visitGenExpr(self, node, stream):
-        stream.out("(")
-        self.visit(node.code, stream)
-        stream.out(")")
+    def visitGenExpr(self, node):
+        yield "("
+        yield self.visit(node.code)
+        yield ")"
 
-    def visitListComp(self, node, stream):
-        stream.out("[")
-        self.visitGenExprInner(node, stream)
-        stream.out("]")
+    def visitListComp(self, node):
+        yield "["
+        yield self.visitGenExprInner(node)
+        yield "]"
 
-    def visitGenExprInner(self, node, stream):
-        self.visit(node.expr, stream)
+    def visitGenExprInner(self, node):
+        yield self.visit(node.expr)
         for qual in node.quals:
-            self.visit(qual, stream)
+            yield self.visit(qual)
 
-    def visitGenExprFor(self, node, stream):
-        stream.out(" for ")
-        self.visit(node.assign, stream)
-        stream.out(" in ")
-        self.visit(node.iter, stream)
+    def visitGenExprFor(self, node):
+        yield " for "
+        yield self.visit(node.assign)
+        yield " in "
+        yield self.visit(node.iter)
         for _if in node.ifs:
-            self.visit(_if, stream)
+            yield self.visit(_if)
 
-    def visitGenExprIf(self, node, stream):
-        stream.out(" if ")
-        self.visit(node.test, stream)
+    def visitGenExprIf(self, node):
+        yield " if "
+        yield self.visit(node.test)
 
-    def visitListCompFor(self, node, stream):
-        stream.out(" for ")
-        self.visit(node.assign, stream)
-        stream.out(" in ")
-        self.visit(node.list, stream)
+    def visitListCompFor(self, node):
+        yield " for "
+        yield self.visit(node.assign)
+        yield " in "
+        yield self.visit(node.list)
         for _if in node.ifs:
-            self.visit(_if, stream)
+            yield self.visit(_if)
             
-    def visitListCompIf(self, node, stream):
-        stream.out(" if ")
-        self.visit(node.test, stream)
+    def visitListCompIf(self, node):
+        yield " if "
+        yield self.visit(node.test)
 
-    def visitCompare(self, node, stream):
-        self.visit(node.expr, stream)
+    def visitCompare(self, node):
+        yield self.visit(node.expr)
         for op, expr in node.ops:
-            stream.out(' %s ' % op)
-            self.visit(expr, stream)
+            yield ' %s ' % op
+            yield self.visit(expr)
 
-    def visitImport(self, node, stream):
-        stream.out("import ")
+    def visitImport(self, node):
+        yield "import "
         for index, (name, alias) in enumerate(node.names):
-            stream.out(name)
+            yield name
             if alias is not None:
-                stream.out(" as %s" % alias)
+                yield " as %s" % alias
             if index < len(node.names) - 1:
-                stream.out(", ")
-        stream.write("")
+                yield ", "
+        yield None
 
-    def visitFrom(self, node, stream):
-        stream.out("from %s import " % node.modname)
+    def visitFrom(self, node):
+        yield "from %s import " % node.modname
         for index, (name, alias) in enumerate(node.names):
-            stream.out(name)
+            yield name
             if alias is not None:
-                stream.out(" as %s" % alias)
+                yield " as %s" % alias
             if index < len(node.names) - 1:
-                stream.out(", ")
-        stream.write("")
+                yield ", "
+        yield None
 
-    def visitReturn(self, node, stream):
-        stream.out("return ")
-        self.visit(node.value, stream)
+    def visitReturn(self, node):
+        yield "return "
+        yield self.visit(node.value)
         
-    def visitWhile(self, node, stream):
-        stream.out("while ")
-        self.visit(node.test, stream)
-        stream.write(":")
-
-        stream.indentation += 1
-        self.visit(node.body, stream)
-        stream.indentation -= 1
+    def visitWhile(self, node):
+        yield "while "
+        yield self.visit(node.test)
+        yield ":"
+ 
+        yield self.visit(node.body),
 
         if node.else_ is not None:
-            stream.write("else:")
-            stream.indentation += 1
-            self.visit(node.else_, stream)
-            stream.indentation -= 1
+            yield "else:"
+            yield self.visit(node.else_),
 
-    def visitTryExcept(self, node, stream):
-        stream.write("try:")
-        stream.indentation += 1
-        self.visit(node.body, stream)
-        stream.indentation -= 1
+    def visitTryExcept(self, node):
+        yield "try:"
+        yield self.visit(node.body),
         for cls, var, body in node.handlers:
-            stream.out("except")
+            yield "except"
             if cls is not None:
-                stream.out(" ")
-                self.visit(cls, stream)
+                yield " "
+                yield self.visit(cls)
             if var is not None:
                 if cls is None:
-                    stream.out(" ")
+                    yield " "
                 else:
-                    stream.out(", ")
-                self.visit(var, stream)
-            stream.write(":")
-            stream.indentation += 1
-            self.visit(body, stream)
-            stream.indentation -= 1
+                    yield ", "
+                yield self.visit(var)
+            yield ":"
+            yield self.visit(body),
 
         if node.else_:
-            stream.write("else:")
-            stream.indentation += 1
-            self.visit(node.else_, stream)
-            stream.indentation -= 1        
+            yield "else:"
+            yield self.visit(node.else_),
     
-    def visitTryFinally(self, node, stream):
-        self.visit(node.body, stream)
-        stream.write("finally:")
-        stream.indentation += 1
-        self.visit(node.final, stream)
-        stream.indentation -= 1
+    def visitTryFinally(self, node):
+        yield self.visit(node.body)
+        yield "finally:"
+        yield self.visit(node.final),
 
-    def visitClass(self, node, stream):
-        stream.out("class %s" % node.name)
+    def visitClass(self, node):
+        yield "class %s" % node.name
 
         if node.bases:
-            stream.out("(")
+            yield "("
             for index, base in enumerate(node.bases):
-                self.visit(base, stream)
+                yield self.visit(base)
                 if index < len(node.bases) - 1:
-                    stream.out(", ")
-            stream.out(")")
-        stream.write(":")
-        stream.indentation += 1
+                    yield ", "
+            yield ")"
+        yield ":"
         
         if node.doc:
-            stream.write(triple_quote(node.doc))
-            
-        self.visit(node.code, stream)
-        stream.indentation -= 1
+            yield triple_quote(node.doc), self.visit(node.code)
+        else:
+            yield self.visit(node.code)
 
-    def visitLambda(self, node, stream):
-        stream.out("lambda")
+    @prioritize(-2)
+    def visitLambda(self, node):
+        yield "lambda"
         argnames = list(node.argnames)
         if argnames:
-            stream.out(" ")
+            yield " "
             if node.kwargs:
                 kwargs = argnames.pop()
             if node.varargs:
                 varargs = argnames.pop()
 
             if node.defaults:
-                stream.out(format_argnames(argnames[:-len(node.defaults)]))
+                yield format_argnames(argnames[:-len(node.defaults)])
                 for index, default in enumerate(node.defaults):
                     name = argnames[index-len(node.defaults)]
-                    stream.out(", %s=" % name)
-                    self.visit(default, stream)
+                    yield ", %s=" % name
+                    yield self.visit(default)
             else:
-                stream.out(format_argnames(argnames))
+                yield format_argnames(argnames)
                             
         if node.varargs:
             if node.argnames:
-                stream.out(", ")
-            stream.out("*%s" % varargs)
+                yield ", "
+            yield "*%s" % varargs
 
         if node.kwargs:
             if node.argnames:
-                stream.out(", ")
-            stream.out("**%s" % kwargs)
+                yield ", "
+            yield "**%s" % kwargs
 
-        stream.out(": ")
-        self.visit(node.code, stream)
+        yield ": "
+        yield self.visit(node.code),
 
-    def visitGetattr(self, node, stream):
-        self.visit(node.expr, stream)
-        stream.out(".%s" % node.attrname)
+    def visitGetattr(self, node):
+        yield self.visit(node.expr)
+        yield ".%s" % node.attrname
 
-    def visitAssAttr(self, node, stream):
-        self.visit(node.expr, stream)
-        stream.out(".%s" % node.attrname)
+    def visitAssAttr(self, node):
+        yield self.visit(node.expr)
+        yield ".%s" % node.attrname
 
-    def visitSubscript(self, node, stream):
-        self.visit(node.expr, stream)
-        stream.out('[')
+    def visitSubscript(self, node):
+        yield self.visit(node.expr)
+        yield '['
         for index, sub in enumerate(node.subs):
-            self.visit(sub, stream)
+            yield self.visit(sub)
             if index < len(node.subs) - 1:
-                stream.out(', ')
-        stream.out(']')
+                yield ', '
+        yield ']'
 
-    def visitSlice(self, node, stream):
-        self.visit(node.expr, stream)
-        stream.out('[')
+    def visitSlice(self, node):
+        yield self.visit(node.expr)
+        yield '['
         if node.lower:
-            self.visit(node.lower, stream)
-        stream.out(':')
+            yield self.visit(node.lower)
+        yield ':'
         if node.upper:
-            self.visit(node.upper, stream)
-        stream.out(']')
+            yield self.visit(node.upper)
+        yield ']'
 
-    def visitSliceobj(self, node, stream):
+    def visitSliceobj(self, node):
         for index, item in enumerate(tuple(node)):
-            self.visit(item, stream)
+            yield self.visit(item)
             if index < len(tuple(node)) - 1:
-                stream.out(":")
+                yield ":"
                 
-    def visitExec(self, node, stream):
-        stream.out("exec ")
-        self.visit(node.expr, stream)
+    def visitExec(self, node):
+        yield "exec "
+        yield self.visit(node.expr)
         if node.locals:
-            stream.out(" in ")
-            self.visit(node.locals, stream)
+            yield " in "
+            yield self.visit(node.locals)
         if node.globals:
-            stream.out(", ")
-            self.visit(node.globals, stream)
-        stream.write("")
+            yield ", "
+            yield self.visit(node.globals)
+        yield None
 
-    def visitAssert(self, node, stream):
-        stream.out("assert ")
-        self.visit(node.test, stream)
+    def visitAssert(self, node):
+        yield "assert "
+        yield self.visit(node.test)
         if node.fail is not None:
-            stream.out(", ")
-            self.visit(node.fail, stream)
-        stream.write("")
+            yield ", "
+            yield self.visit(node.fail)
+        yield None
 
-    def visitRaise(self, node, stream):
-        stream.out("raise ")
-        self.visit(node.expr1, stream)
+    def visitRaise(self, node):
+        yield "raise "
+        yield self.visit(node.expr1)
         if node.expr2:
-            stream.out(", ")
-            self.visit(node.expr2, stream)
+            yield ", "
+            yield self.visit(node.expr2)
         if node.expr3:
-            stream.out(", ")
-            self.visit(node.expr3, stream)
+            yield ", "
+            yield self.visit(node.expr3)
 
-    def visitPrintnl(self, node, stream):
-        stream.out("print ")
+    def visitPrintnl(self, node):
+        yield "print "
         if node.dest is not None:
-            stream.out(">> ")
-            self.visit(node.dest, stream)
-            stream.out(", ")
+            yield ">> "
+            yield self.visit(node.dest)
+            yield ", "
         for index, expr in enumerate(tuple(node.nodes)):
             if expr is None:
                 continue
-            self.visit(expr, stream)
+            yield self.visit(expr)
             if index < len(tuple(node.nodes)) - 1 and node.nodes[index+1] is not None:
-                stream.out(", ")
-        stream.write("")
+                yield ", "
+        yield None
 
-    def visitWith(self, node, stream):
+    def visitWith(self, node):
         raise NotImplementedError(
             "The `with` keyword is not supported.")
 
-    def visitAugAssign(self, node, stream):
-        self.visit(node.expr, stream)
-        stream.out(" %s " % node.op)
-        self.visit(node.node, stream)
+    def visitAugAssign(self, node):
+        yield self.visit(node.expr)
+        yield " %s " % node.op
+        yield self.visit(node.node)
 
-    def visitList(self, node, stream):
-        stream.out('[')
+    def visitList(self, node):
+        yield '['
         for index, item in enumerate(node.nodes):
-            self.visit(item, stream)
+            yield self.visit(item)
             if index < len(node.nodes) - 1:
-                stream.out(", ")            
-        stream.out(']')
+                yield ", "
+        yield ']'
 
-    def visitDict(self, node, stream):
-        stream.out('{')
+    def visitDict(self, node):
+        yield '{'
         for index, (expr, value) in enumerate(node.items):
-            self.visit(expr, stream)
-            stream.out(': ')
-            self.visit(value, stream)
+            yield self.visit(expr)
+            yield ': '
+            yield self.visit(value)
             if index < len(node.items) - 1:
-                stream.out(", ")            
-        stream.out('}')
+                yield ", "
+        yield '}'
 
-    def visitNot(self, node, stream):
-        stream.out("not (")
-        self.visit(node.expr, stream)
-        stream.out(")")
-
-    def visitFor(self, node, stream):
-        stream.out("for %s in " % format_ass(node.assign))
-        self.visit(node.list, stream)
-        stream.write(":")
-        stream.indentation += 1
-        self.visit(node.body, stream)
-        stream.indentation -= 1
+    def visitFor(self, node):
+        yield "for %s in " % format_ass(node.assign)
+        yield self.visit(node.list)
+        yield ":"
+        yield self.visit(node.body)
         if node.else_ is not None:
-            stream.write("else:")
-            stream.indentation += 1
-            self.visit(node.else_, stream)
-            stream.indentation -= 1
+            yield "else:"
+            yield self.visit(node.else_)
 
-    def visitYield(self, node, stream):
-        stream.out("yield ")
-        self.visit(node.value, stream)
-        stream.write("")
+    def visitYield(self, node):
+        yield "yield "
+        yield self.visit(node.value)
+        yield None
 
-    def visitUnaryAdd(self, node, stream):
-        stream.out("+")
-        self.visit(node.expr, stream)
+    visitPower = binary('**', 10)
+    visitInvert = unary('~', 9)
+    visitUnaryAdd = unary('+', 8)
+    visitUnarySub = unary('-', 8)
+    visitMul = binary('*', 7)
+    visitMod = binary('%', 7)    
+    visitDiv = binary('/', 7)
 
-    def visitUnarySub(self, node, stream):
-        stream.out("-")
-        self.visit(node.expr, stream)
+    visitAdd = binary('+', 6)
+    visitSub = binary('-', 6)
 
-    visitAdd = binary('+')
-    visitSub = binary('-')
-    visitMul = binary('*')
-    visitPower = binary('**')
-    visitMod = binary('%')    
-    visitDiv = binary('/')
-    visitLeftShift = binary('<<')
-    visitRightShift = binary('>>')
+    visitLeftShift = binary('<<', 5)
+    visitRightShift = binary('>>', 5)
+
+    visitBitand = n_ary('&', 4)
+    visitBitxor = n_ary('^', 3)
+    visitBitor = n_ary('|', 2)
+    
+    visitNot = unary('not ', 1)
+    visitAnd = n_ary('and', 0)
+    visitOr = n_ary('or', -1)
+
+    
+
