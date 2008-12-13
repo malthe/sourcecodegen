@@ -296,9 +296,16 @@ class TestSourceCodeGeneration(unittest.TestCase):
         -bar
         
     @verify
-    def testAffinity(self):
+    def testOperatorPrecenceRules(self):
+        a + b / c % d * e - b / c + a
+        a & c | d ^ e
+        
+    @verify
+    def testOptimalOperatorPredence(self):
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b
+
+        
