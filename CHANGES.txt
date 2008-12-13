@@ -1,7 +1,7 @@
 Changelog
 =========
 
-HEAD
+0.6 (released 13/12/2008)
 
  - Operator precedence is now taken into account such that we can
    avoid unnecessary use of parentheses. This is done not only for
