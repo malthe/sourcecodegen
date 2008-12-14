@@ -1,7 +1,7 @@
 Changelog
 =========
 
-In next release
+0.6.2 (released 14/12/2008)
 
  - Fixed issue where lambda blocks would be incorrectly indented;
    also, function bodies are now always properly cleared. [malthe]
