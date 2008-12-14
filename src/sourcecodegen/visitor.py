@@ -89,6 +89,7 @@ class CodeStream(object):
             return self.out(value)
 
         if isinstance(value, tuple) and self.clear is False:
+            self.write()
             self.clear = True
             self.indentation += 1
             self(value)
@@ -96,7 +97,7 @@ class CodeStream(object):
         else:
             for part in value:
                 self(part)
-                    
+
     def write(self, text=None):
         if text or self.clear == False:
             self.out(text)
@@ -440,7 +441,7 @@ class ASTVisitor(object):
             yield "**%s" % kwargs
 
         yield ": "
-        yield self.visit(node.code),
+        yield self.visit(node.code)
 
     def visitGetattr(self, node):
         yield self.visit(node.expr)

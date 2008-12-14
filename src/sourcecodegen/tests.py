@@ -265,6 +265,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
         foo | bar & bar ^ foo
         ~ bar
         ~ (foo or bar)
+        
     @verify
     def testOperators(self):
         not foo
@@ -309,3 +310,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b + \
         a + b + c + d + e + f + g + h + i + j + k + l + m + n + a + b
 
+    @verify
+    def testFunctionNesting(self):
+        def abc():
+            def ghi():
+                a = lambda jkl: mno
