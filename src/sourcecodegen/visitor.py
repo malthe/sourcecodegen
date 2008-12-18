@@ -1,7 +1,10 @@
+import sys
+
 from compiler import ast
-from itertools import chain
 
 from cStringIO import StringIO
+
+version = sys.version_info[:3]
 
 def triple_quote(doc):
     return '"""%s"""' % doc.replace('"""', '\"\"\"')
@@ -389,9 +392,15 @@ class ASTVisitor(object):
             yield self.visit(node.else_),
     
     def visitTryFinally(self, node):
-        yield self.visit(node.body)
-        yield "finally:"
-        yield self.visit(node.final),
+        if version < (2,5):
+            yield "try:"
+            yield self.visit(node.body),
+            yield "finally:"
+            yield self.visit(node.final),
+        else:
+            yield self.visit(node.body)
+            yield "finally:"
+            yield self.visit(node.final),
 
     def visitClass(self, node):
         yield "class %s" % node.name

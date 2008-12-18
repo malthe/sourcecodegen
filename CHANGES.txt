@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Next release
+
+ - Allow proper operation under Python 2.4 (try/finally
+   fixes). [chrism]
+
 0.6.2 (released 14/12/2008)
 
  - Fixed issue where lambda blocks would be incorrectly indented;

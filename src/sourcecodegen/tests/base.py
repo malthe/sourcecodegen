@@ -1,3 +1,4 @@
+import sys
 import unittest
 import doctest
 import inspect
@@ -11,6 +12,8 @@ from compiler import parse
 from compiler import pycodegen
 
 from sourcecodegen.generation import ModuleSourceCodeGenerator
+
+version = sys.version_info[:3]
 
 def fix_tree(node):
     if isinstance(node, (
@@ -149,17 +152,6 @@ class TestSourceCodeGeneration(unittest.TestCase):
         except Exception, e:
             pass
         except:
-            pass
-
-    @verify
-    def testTryFinally(self):
-        try:
-            pass
-        except:
-            pass
-        else:
-            pass
-        finally:
             pass
 
     @verify
