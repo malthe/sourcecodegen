@@ -1,6 +1,10 @@
 Changelog
 =========
 
+In next release
+
+ - Added convenience method to generate code. [malthe]
+
 0.6.3 (released 18/12/2008)
 
  - Allow proper operation under Python 2.4 (try/finally

@@ -11,3 +11,5 @@ class ModuleSourceCodeGenerator(object):
         visitor = ASTVisitor(self.tree)
         return visitor()
 
+def generate_code(tree):
+    return ModuleSourceCodeGenerator(tree).getSourceCode()
