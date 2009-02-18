@@ -145,6 +145,7 @@ class ASTVisitor(object):
     def visitModule(self, node):
         if node.doc is not None:
             yield triple_quote(node.doc)
+            yield None
 
         for node in self.visit(node.node):
             yield node

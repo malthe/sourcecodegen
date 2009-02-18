@@ -307,3 +307,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
         def abc():
             def ghi():
                 a = lambda jkl: mno
+
+    def testStandaloneString(self):
+        self.assertEqual(verify_source(
+            "'0'\n0"), None)
+

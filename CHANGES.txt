@@ -1,7 +1,10 @@
 Changelog
 =========
 
-In next release
+ - Fixed issue where a module docstring would cause an undesired
+   indentaion. [malthe]
+
+0.6.4 (released 24/01/2009)
 
  - Added convenience method to generate code. [malthe]
 
