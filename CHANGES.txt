@@ -1,6 +1,8 @@
 Changelog
 =========
 
+0.6.5 (released 19/02/2009)
+
  - Fixed issue where a module docstring would cause an undesired
    indentaion. [malthe]
 
