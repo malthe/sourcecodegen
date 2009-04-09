@@ -312,3 +312,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
         self.assertEqual(verify_source(
             "'0'\n0"), None)
 
+    @verify
+    def testIndentation(self):
+        for abc in abc:
+            'abc'
+            abc
