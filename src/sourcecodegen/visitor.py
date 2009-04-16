@@ -128,7 +128,7 @@ class ASTVisitor(object):
         
     def visit(self, node):
         name = node.__class__.__name__
-            
+
         try:
             func = getattr(self, 'visit%s' % name)
         except AttributeError:
@@ -140,7 +140,7 @@ class ASTVisitor(object):
         if isinstance(gen, prioritized):
             return gen
 
-        return prioritized(gen, 0)        
+        return prioritized(gen, 0)
 
     def visitModule(self, node):
         if node.doc is not None:
@@ -151,13 +151,8 @@ class ASTVisitor(object):
             yield node
 
     def visitStmt(self, node):
-        for child in node.nodes:
-            if child is None:
-                continue
-
-            yield (self.visit(child),)
-            yield None
-            
+        yield tuple(self.visit(child) for child in node.nodes if child is not None)
+        
     def visitIf(self, node):
         for index, test in enumerate(node.tests):
             if index == 0:
@@ -201,7 +196,9 @@ class ASTVisitor(object):
         if node.flags == 'OP_DELETE':
             yield "del "
         yield node.name
-
+        if node.flags == 'OP_DELETE':
+            yield None
+            
     def visitFunction(self, node):
         if node.decorators:
             yield self.visit(node.decorators)
@@ -279,7 +276,9 @@ class ASTVisitor(object):
         if first.flags == 'OP_DELETE':
             yield "del "
         yield format_ass(node)
-
+        if first.flags == 'OP_DELETE':
+            yield None
+            
     @prioritize(0)
     def visitTuple(self, node):
         yield "("
@@ -359,6 +358,7 @@ class ASTVisitor(object):
     def visitReturn(self, node):
         yield "return "
         yield self.visit(node.value)
+        yield None
         
     def visitWhile(self, node):
         yield "while "
@@ -537,6 +537,7 @@ class ASTVisitor(object):
         yield self.visit(node.expr)
         yield " %s " % node.op
         yield self.visit(node.node)
+        yield None
 
     def visitList(self, node):
         yield '['

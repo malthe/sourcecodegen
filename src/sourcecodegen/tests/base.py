@@ -134,6 +134,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
 
     @verify
     def testReturn(self):
+        def test():
+            return foo
         return foo, bar
 
     @verify
@@ -315,5 +317,5 @@ class TestSourceCodeGeneration(unittest.TestCase):
     @verify
     def testIndentation(self):
         for abc in abc:
-            'abc'
-            abc
+            ppp
+            ppp
