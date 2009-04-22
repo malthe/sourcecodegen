@@ -1,7 +1,7 @@
 Changelog
 =========
 
-In next release
+0.6.7 (released 22/04/2009)
 
  - Fixed issue where star and double-star arguments would be printed
    without the '*' and '**' prefix. [malthe]
