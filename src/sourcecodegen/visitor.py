@@ -258,10 +258,14 @@ class ASTVisitor(object):
         if node.star_args:
             if node.args:
                 yield ", *"
+            else:
+                yield "*"
             yield self.visit(node.star_args)
         if node.dstar_args:
             if node.args:
                 yield ", **"
+            else:
+                yield "**"
             yield self.visit(node.dstar_args)
         yield ")"
 
@@ -439,14 +443,16 @@ class ASTVisitor(object):
                     yield self.visit(default)
             else:
                 yield format_argnames(argnames)
-                            
+
+        offset = (node.varargs or 0) + (node.kwargs or 0)
+
         if node.varargs:
-            if node.argnames:
+            if len(node.argnames) > offset:
                 yield ", "
             yield "*%s" % varargs
 
         if node.kwargs:
-            if node.argnames:
+            if node.varargs or len(node.argnames) > offset:
                 yield ", "
             yield "**%s" % kwargs
 

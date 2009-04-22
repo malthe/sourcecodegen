@@ -173,6 +173,12 @@ class TestSourceCodeGeneration(unittest.TestCase):
         bar = lambda foo: bar
         bar = lambda foo, bar: bar
         bar = lambda (foo, bar): bar
+        bar = lambda foo, **kwargs: kwargs
+        bar = lambda foo, bar, **kwargs: kwargs
+        bar = lambda foo, *args: args
+        bar = lambda foo, bar, *args: args
+        bar = lambda **kwargs: kwargs
+        bar = lambda *args, **kwargs: (args, kwargs)
 
     @verify
     def testGetAttr(self):
@@ -319,3 +325,11 @@ class TestSourceCodeGeneration(unittest.TestCase):
         for abc in abc:
             ppp
             ppp
+
+    @verify
+    def testMethod(self):
+        abc(*args)
+        abc(**kwargs)
+        abc(ghi, *args)
+        abc(ghi, **kwargs)
+        abc(ghi, *args, **kwargs)
