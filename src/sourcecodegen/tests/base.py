@@ -110,7 +110,10 @@ class TestSourceCodeGeneration(unittest.TestCase):
     def testDel(self):
         del foo
         del foo, bar
-
+        del foo.bar
+        del foo[bar]
+        del foo[bar:boo]
+        
     @verify
     def testListComprehensions(self):
         [x for x in xs]

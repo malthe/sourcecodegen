@@ -191,7 +191,7 @@ class ASTVisitor(object):
         yield " = "
         yield self.visit(node.expr)
         yield None
-        
+
     def visitAssName(self, node):
         if node.flags == 'OP_DELETE':
             yield "del "
@@ -282,7 +282,7 @@ class ASTVisitor(object):
         yield format_ass(node)
         if first.flags == 'OP_DELETE':
             yield None
-            
+
     @prioritize(0)
     def visitTuple(self, node):
         yield "("
@@ -464,10 +464,16 @@ class ASTVisitor(object):
         yield ".%s" % node.attrname
 
     def visitAssAttr(self, node):
+        if node.flags == 'OP_DELETE':
+            yield "del "
         yield self.visit(node.expr)
         yield ".%s" % node.attrname
+        if node.flags == 'OP_DELETE':
+            yield None
 
     def visitSubscript(self, node):
+        if node.flags == 'OP_DELETE':
+            yield "del "
         yield self.visit(node.expr)
         yield '['
         for index, sub in enumerate(node.subs):
@@ -475,8 +481,12 @@ class ASTVisitor(object):
             if index < len(node.subs) - 1:
                 yield ', '
         yield ']'
+        if node.flags == 'OP_DELETE':
+            yield None
 
     def visitSlice(self, node):
+        if node.flags == 'OP_DELETE':
+            yield "del "
         yield self.visit(node.expr)
         yield '['
         if node.lower:
@@ -485,6 +495,8 @@ class ASTVisitor(object):
         if node.upper:
             yield self.visit(node.upper)
         yield ']'
+        if node.flags == 'OP_DELETE':
+            yield None
 
     def visitSliceobj(self, node):
         for index, item in enumerate(tuple(node)):
