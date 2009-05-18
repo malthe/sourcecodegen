@@ -1,7 +1,7 @@
 Changelog
 =========
 
-In next release
+0.6.8 (released 18/05/2009)
 
  - Fixed issue where the delete operator would not be treated as a
    statement. [malthe]
