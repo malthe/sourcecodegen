@@ -225,12 +225,12 @@ class ASTVisitor(object):
                 yield format_argnames(argnames)
                             
         if node.varargs:
-            if node.argnames:
+            if len(node.argnames) > 1:
                 yield ", "
             yield "*%s" % varargs
 
         if node.kwargs:
-            if node.argnames:
+            if len(node.argnames) > 1 or node.varargs:
                 yield ", "
             yield "**%s" % kwargs
 

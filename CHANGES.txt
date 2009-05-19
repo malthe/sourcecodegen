@@ -1,6 +1,14 @@
 Changelog
 =========
 
+In next release...
+
+- Fixed issue where variable keyword-arguments would sometimes not be
+  handled correctly. [malthe]
+
+- Fixed issue where identity operator would not be handled
+  correctly. [malthe]
+
 0.6.8 (released 18/05/2009)
 
  - Fixed issue where the delete operator would not be treated as a

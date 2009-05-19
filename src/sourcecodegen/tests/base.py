@@ -76,6 +76,12 @@ class TestSourceCodeGeneration(unittest.TestCase):
         def foo(bar):
             pass
 
+        def foo(*bar):
+            pass
+
+        def foo(**bar):
+            pass
+
         def foo(bar, *args):
             pass
 
@@ -182,7 +188,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
         bar = lambda foo, bar, *args: args
         bar = lambda **kwargs: kwargs
         bar = lambda *args, **kwargs: (args, kwargs)
-
+        
     @verify
     def testGetAttr(self):
         foo.bar
@@ -274,6 +280,10 @@ class TestSourceCodeGeneration(unittest.TestCase):
         not foo
         bar or foo
         not (foo or bar)
+
+    @verify
+    def testIdentity(self):
+        foo is bar
         
     @verify
     def testFormatString(self):
