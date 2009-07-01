@@ -1,6 +1,10 @@
 Changelog
 =========
 
+In next release...
+
+- Fixed order of node and expression for augmented assignment. [malthe]
+
 0.6.9 (released 19/05/2009)
 
 - Fixed issue where variable keyword-arguments would sometimes not be

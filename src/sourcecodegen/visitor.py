@@ -363,7 +363,15 @@ class ASTVisitor(object):
         yield "return "
         yield self.visit(node.value)
         yield None
-        
+
+    def visitBreak(self, node):
+        yield "break"
+        yield None
+
+    def visitContinue(self, node):
+        yield "continue"
+        yield None
+
     def visitWhile(self, node):
         yield "while "
         yield self.visit(node.test)
@@ -552,9 +560,9 @@ class ASTVisitor(object):
             "The `with` keyword is not supported.")
 
     def visitAugAssign(self, node):
-        yield self.visit(node.expr)
-        yield " %s " % node.op
         yield self.visit(node.node)
+        yield " %s " % node.op
+        yield self.visit(node.expr)
         yield None
 
     def visitList(self, node):

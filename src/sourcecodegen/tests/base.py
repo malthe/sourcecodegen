@@ -55,12 +55,14 @@ class TestSourceCodeGeneration(unittest.TestCase):
         ((foo, bar), foo) = moo
 
     @verify
-    def testArithmeticAssignment(self):
+    def testAugmentAssignment(self):
         foo -= bar
         foo += bar
         foo %= bar
         foo /= bar
         foo **= bar
+        foo -= 1
+        bar += 1
                 
     @verify
     def testConditions(self):
@@ -346,3 +348,13 @@ class TestSourceCodeGeneration(unittest.TestCase):
         abc(ghi, *args)
         abc(ghi, **kwargs)
         abc(ghi, *args, **kwargs)
+
+    @verify
+    def testBreak(self):
+        for i in range(5):
+            break
+
+    @verify
+    def testContinue(self):
+        for i in range(5):
+            continue
