@@ -1,6 +1,10 @@
 Changelog
 =========
 
+In next release...
+
+- Added support for ternary operator (Python 2.5+). [malthe]
+
 0.6.10 (released 6/07/2009)
 
 - Fixed order of node and expression for augmented assignment. [malthe]

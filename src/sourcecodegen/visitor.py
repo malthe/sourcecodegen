@@ -555,6 +555,13 @@ class ASTVisitor(object):
                 yield ", "
         yield None
 
+    def visitIfExp(self, node):
+        yield self.visit(node.then)
+        yield " if "
+        yield self.visit(node.test)
+        yield " else "
+        yield self.visit(node.else_)
+
     def visitWith(self, node):
         raise NotImplementedError(
             "The `with` keyword is not supported.")

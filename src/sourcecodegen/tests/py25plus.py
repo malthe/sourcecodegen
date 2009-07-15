@@ -13,4 +13,6 @@ class TestSourceCodeGeneration(Base):
         finally:
             pass
 
-
+    @verify
+    def testTernary(self):
+        foo if bar else boo
