@@ -1,7 +1,7 @@
 Changelog
 =========
 
-In next release...
+0.6.11 (released 15/07/2009)
 
 - Added support for ternary operator (Python 2.5+). [malthe]
 
