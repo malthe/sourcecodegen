@@ -1,4 +1,4 @@
-__version__ = '0.6.11'
+__version__ = '0.6.12'
 
 import os
 import sys
@@ -36,7 +36,7 @@ setup(
     keywords='python source-code generation ast',
     author="Malthe Borch",
     author_email="mborch@gmail.com",
-    license='BSD',
+    license='BSD-like (http://repoze.org/license.html)',
     packages=find_packages('src'),
     package_dir = {'': 'src'},
     include_package_data=True,

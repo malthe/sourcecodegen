@@ -1,7 +1,7 @@
 Changelog
 =========
 
-0.6.12 (unreleased)
+0.6.12 (released 12/01/2010)
 
 - Add repoze license text in LICENSE.txt with permission of author.
   http://lists.repoze.org/pipermail/repoze-dev/2010-January/002554.html
