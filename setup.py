@@ -36,6 +36,7 @@ setup(
     keywords='python source-code generation ast',
     author="Malthe Borch",
     author_email="mborch@gmail.com",
+    url="http://chameleon.repoze.org",
     license='BSD-like (http://repoze.org/license.html)',
     packages=find_packages('src'),
     package_dir = {'': 'src'},
