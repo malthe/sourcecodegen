@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.6.12 (unreleased)
+
+- Add repoze license text in LICENSE.txt with permission of author.
+  http://lists.repoze.org/pipermail/repoze-dev/2010-January/002554.html
+  [jinty]
+
 0.6.11 (released 15/07/2009)
 
 - Added support for ternary operator (Python 2.5+). [malthe]
