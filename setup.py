@@ -1,4 +1,4 @@
-__version__ = '0.6.12'
+__version__ = '0.6.13'
 
 import os
 import sys
@@ -18,7 +18,7 @@ if version < (2,5):
     test_suite = 'sourcecodegen.tests.py24'
 else:
     test_suite = 'sourcecodegen.tests.py25plus'
-    
+
 setup(
     name='sourcecodegen',
     version=__version__,
@@ -26,12 +26,16 @@ setup(
                 'abstract syntax tree.',
     long_description="\n\n".join((README, CHANGES)),
     classifiers=[
-       "Development Status :: 3 - Alpha",
+       "Development Status :: 6 - Mature",
        "Intended Audience :: Developers",
        "Programming Language :: Python",
        "Topic :: Internet :: WWW/HTTP",
        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
        "Topic :: Internet :: WWW/HTTP :: WSGI",
+       "Programming Language :: Python :: 2.4",
+       "Programming Language :: Python :: 2.5",
+       "Programming Language :: Python :: 2.6",
+       "Programming Language :: Python :: 2.7",
       ],
     keywords='python source-code generation ast',
     author="Malthe Borch",
