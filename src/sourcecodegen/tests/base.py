@@ -3,6 +3,7 @@ import unittest
 import doctest
 import inspect
 import textwrap
+import base64
 
 OPTIONFLAGS = (doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
@@ -26,19 +27,23 @@ def verify_source(source):
     tree = fix_tree(parse(source, 'exec'))
     code = pycodegen.ModuleCodeGenerator(tree).getCode()
     generator = ModuleSourceCodeGenerator(tree)
-    source = generator.getSourceCode()
-    tree = fix_tree(parse(source, 'exec'))
-    if code.co_code != pycodegen.ModuleCodeGenerator(tree).getCode().co_code:
-        return source
+    generated = generator.getSourceCode()
+    new = fix_tree(parse(generated, 'exec'))
+
+    old = code.co_code
+    new = pycodegen.ModuleCodeGenerator(new).getCode().co_code
+
+    if old != new:
+        return generated
 
 def verify(func):
     def test(suite):
-        result = verify_source(
-            textwrap.dedent("\n".join(
-                inspect.getsource(func).split('\n')[2:]))
+        source = textwrap.dedent(
+            "\n".join(inspect.getsource(func).split('\n')[2:])
             )
 
-        return suite.assertEqual(result, None)
+        result = verify_source(source)
+        return suite.assertEqual(result, None, "%r != %r" % (source, result))
 
     return test
 
@@ -136,7 +141,7 @@ class TestSourceCodeGeneration(unittest.TestCase):
 
     @verify
     def testMultipleListComprehensions(self):
-        [x*y for x in xs for y in ys]
+        [(x * y) for x in xs for y in ys]
 
     @verify
     def testGeneratorComprehensions(self):

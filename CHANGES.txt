@@ -1,6 +1,9 @@
 Changelog
 =========
 
+- Added support for function docstrings.
+  [malthe]
+
 0.6.12 (released 12/01/2010)
 
 - Add repoze license text in LICENSE.txt with permission of author.

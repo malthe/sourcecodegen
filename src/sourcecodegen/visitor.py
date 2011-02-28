@@ -198,7 +198,7 @@ class ASTVisitor(object):
         yield node.name
         if node.flags == 'OP_DELETE':
             yield None
-            
+
     def visitFunction(self, node):
         if node.decorators:
             yield self.visit(node.decorators)
@@ -223,7 +223,7 @@ class ASTVisitor(object):
                     yield self.visit(default)
             else:
                 yield format_argnames(argnames)
-                            
+
         if node.varargs:
             if len(node.argnames) > 1:
                 yield ", "
@@ -235,7 +235,11 @@ class ASTVisitor(object):
             yield "**%s" % kwargs
 
         yield "):"
-        yield self.visit(node.code),
+
+        if node.doc:
+            yield triple_quote(node.doc), self.visit(node.code)
+        else:
+            yield self.visit(node.code),
 
     @prioritize(0)
     def visitConst(self, node):
