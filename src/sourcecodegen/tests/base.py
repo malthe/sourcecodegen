@@ -121,19 +121,25 @@ class TestSourceCodeGeneration(unittest.TestCase):
         del foo.bar
         del foo[bar]
         del foo[bar:boo]
-        
+
     @verify
     def testListComprehensions(self):
         [x for x in xs]
         [x for x in xs if x]
         [x for x in xs if x == y]
+
+    @verify
+    def testMultipleListComprehensions(self):
         [x*y for x in xs for y in ys]
-        
+
     @verify
     def testGeneratorComprehensions(self):
         (x for x in xs)
         (x for x in xs if x)
         (x for x in xs if x == y)
+
+    @verify
+    def testMultipleGeneratorComprehensions(self):
         (x*y for x in xs for x in xs for y in ys)
 
     @verify
@@ -358,3 +364,4 @@ class TestSourceCodeGeneration(unittest.TestCase):
     def testContinue(self):
         for i in range(5):
             continue
+
