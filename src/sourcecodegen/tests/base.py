@@ -32,9 +32,15 @@ def verify_source(source):
         return source
 
 def verify(func):
-    return lambda suite: suite.assertEqual(verify_source(
-        textwrap.dedent("\n".join(
-        inspect.getsource(func).split('\n')[2:]))), None)
+    def test(suite):
+        result = verify_source(
+            textwrap.dedent("\n".join(
+                inspect.getsource(func).split('\n')[2:]))
+            )
+
+        return suite.assertEqual(result, None)
+
+    return test
 
 class TestSourceCodeGeneration(unittest.TestCase):
     """The ``verify`` decorator is used to create a test-case out of
@@ -364,4 +370,3 @@ class TestSourceCodeGeneration(unittest.TestCase):
     def testContinue(self):
         for i in range(5):
             continue
-
