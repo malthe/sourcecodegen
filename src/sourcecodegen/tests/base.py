@@ -370,3 +370,11 @@ class TestSourceCodeGeneration(unittest.TestCase):
     def testContinue(self):
         for i in range(5):
             continue
+
+    @verify
+    def testFunctionDocString(self):
+        def foo():
+            """bar."""
+
+        def bar():
+            "hello"
