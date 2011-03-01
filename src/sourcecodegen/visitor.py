@@ -237,9 +237,9 @@ class ASTVisitor(object):
         yield "):"
 
         if node.doc:
-            yield triple_quote(node.doc), self.visit(node.code)
-        else:
-            yield self.visit(node.code),
+            yield triple_quote(node.doc),
+
+        yield self.visit(node.code),
 
     @prioritize(0)
     def visitConst(self, node):

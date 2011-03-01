@@ -28,7 +28,10 @@ def verify_source(source):
     code = pycodegen.ModuleCodeGenerator(tree).getCode()
     generator = ModuleSourceCodeGenerator(tree)
     generated = generator.getSourceCode()
-    new = fix_tree(parse(generated, 'exec'))
+    try:
+        new = fix_tree(parse(generated, 'exec'))
+    except SyntaxError:
+        return generated
 
     old = code.co_code
     new = pycodegen.ModuleCodeGenerator(new).getCode().co_code
@@ -383,3 +386,11 @@ class TestSourceCodeGeneration(unittest.TestCase):
 
         def bar():
             "hello"
+
+        def boo():
+            """bar."""
+            return foo
+
+        def baz():
+            "hello"
+            return boo

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+- Fixed issue where a function with a docstring and a function body
+  would get incorrect indentation.
+  [malthe]
+
 0.6.13 (released 28/02/2011)
 
 - Added support for function docstrings.
