@@ -1,6 +1,8 @@
 Changelog
 =========
 
+0.6.14 (released 19/05/2011)
+
 - Fixed issue where an ``ast.Sliceobj`` outside the context of
   subscripts (this is an odd construct which is unfortunately
   understood by Python's legacy AST compiler, but not possible to
