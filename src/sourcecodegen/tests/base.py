@@ -394,3 +394,8 @@ class TestSourceCodeGeneration(unittest.TestCase):
         def baz():
             "hello"
             return boo
+
+    def testSliceobj(self):
+        node = ast.Sliceobj([ast.Const(1), ast.Const(2), ast.Const(3)])
+        source = ModuleSourceCodeGenerator(node).getSourceCode()
+        self.assertEqual(source, 'slice(1, 2, 3)')

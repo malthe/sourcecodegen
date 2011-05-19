@@ -1,6 +1,14 @@
 Changelog
 =========
 
+- Fixed issue where an ``ast.Sliceobj`` outside the context of
+  subscripts (this is an odd construct which is unfortunately
+  understood by Python's legacy AST compiler, but not possible to
+  reproduce from source code).
+
+  The issue affects at least Zope's ``RestrictedPython`` package.
+  [malthe]
+
 - Fixed issue where a function with a docstring and a function body
   would get incorrect indentation.
   [malthe]

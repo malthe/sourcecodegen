@@ -489,7 +489,13 @@ class ASTVisitor(object):
         yield self.visit(node.expr)
         yield '['
         for index, sub in enumerate(node.subs):
-            yield self.visit(sub)
+            if isinstance(sub, ast.Sliceobj):
+                for i, slice in enumerate(tuple(sub)):
+                    yield self.visit(slice)
+                    if i < len(tuple(sub)) - 1:
+                        yield ":"
+            else:
+                yield self.visit(sub)
             if index < len(node.subs) - 1:
                 yield ', '
         yield ']'
@@ -511,11 +517,13 @@ class ASTVisitor(object):
             yield None
 
     def visitSliceobj(self, node):
+        yield 'slice('
         for index, item in enumerate(tuple(node)):
             yield self.visit(item)
             if index < len(tuple(node)) - 1:
-                yield ":"
-                
+                yield ", "
+        yield ')'
+
     def visitExec(self, node):
         yield "exec "
         yield self.visit(node.expr)
